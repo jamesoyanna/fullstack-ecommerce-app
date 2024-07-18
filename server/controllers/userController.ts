@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
+import { Request, Response } from "../types/express";
 import asyncHandler from "express-async-handler";
-import { User } from "../models/";
+import { User } from "../models";
 import generateToken from "../utils/generateToken";
+import { UserDocument } from "../types"; // Import the UserDocument type
 
 /**
  * Authenticate user and get token
@@ -11,7 +12,7 @@ import generateToken from "../utils/generateToken";
 const authUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body as { email: string; password: string };
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }) as UserDocument;
 
   if (user && (await user.matchPassword(password))) {
     res.json({
@@ -19,7 +20,7 @@ const authUser = asyncHandler(async (req: Request, res: Response) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id),
+      token: generateToken(user._id as string), // Explicitly cast to string
     });
   } else {
     res.status(401);
@@ -39,7 +40,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     password: string;
   };
 
-  const userExists = await User.findOne({ email });
+  const userExists = await User.findOne({ email }) as UserDocument;
 
   if (userExists) {
     res.status(400);
@@ -50,7 +51,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     name,
     email,
     password,
-  });
+  }) as UserDocument;
 
   if (user) {
     res.status(201).json({
@@ -58,7 +59,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id),
+      token: generateToken(user._id as string), // Explicitly cast to string
     });
   } else {
     res.status(400);
@@ -66,6 +67,11 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Get user profile
+ * @route GET /api/users/profile
+ * @access Private
+ */
 export {
   authUser,
   registerUser,
