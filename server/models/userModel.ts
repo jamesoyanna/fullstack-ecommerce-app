@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs";// for password hashing and comparison
 import { model, Schema } from "mongoose";
 import { UserDocument } from "../types/";
 

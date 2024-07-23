@@ -4,7 +4,10 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "start": "nodemon server.ts"
+    "start": "nodemon server.ts",
+    "data:import": "npx ts-node server/seeder.ts",
+    "data:destroy": "npx ts-node server/seeder.ts -d",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
