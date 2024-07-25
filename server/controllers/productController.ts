@@ -56,7 +56,7 @@ const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
-    await product.remove();
+    await product.deleteOne({ _id: req.params.id});
     res.json({ message: "Product removed" });
   } else {
     res.status(404);
@@ -82,7 +82,7 @@ const createProduct = asyncHandler(async (req: Request, res: Response) => {
     description: "Same Description",
   });
 
-  //const createdProduct = await product.save();
+//   const createdProduct = await product.save();
   res.status(201).json(product);
 });
 

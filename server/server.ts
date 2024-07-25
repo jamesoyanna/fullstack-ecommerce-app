@@ -3,6 +3,8 @@ import cors from 'cors';
 import connectDB from "./config/db";
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import productRoutes from "./routes/productRoutes";
+
 
 
 //Routes
@@ -28,6 +30,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/users/", userRoutes);
+
+app.use("/api/products/", productRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);

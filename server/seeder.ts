@@ -1,46 +1,67 @@
-import express, {Request, Response} from "express";
-import path from "path";
 import dotenv from "dotenv";
+import users from "./data/users";
+import products from "./data/products";
+import { User, Product,} from "./models/";
+import { UserDocument } from "./types/";
 import connectDB from "./config/db";
-import cors from "cors";
-import {notFound, errorHandler} from "./middleware/errorMiddleware";
-import morgan from "morgan";
 
-
-//Routes
-import userRoutes from "./routes/userRoutes";
-
-const PORT = process.env.PORT || 4000;
-
-const app = express();
-app.use(cors());
-
-//Middleware to accept JSON in body
-app.use(express.json());
-
-//Morgan logging
-app.use(morgan("dev"))
+/**
+ * Helper file that is used for adding and removing test data to the database
+ */
 
 dotenv.config();
+
 connectDB();
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("API IS RUNNING...");
-  });
+/**
+ * Destroy existing data and seed new data into the database
+ * This will populate a list of products with a default admin user
+ */
+const importData = async () => {
+  try {
+    // Clear any existing items from DB
+    // await Order.deleteMany();
+    // await Product.deleteMany();
+    // await User.deleteMany();
 
-  // Use routes
-app.use("/api/products/", productRoutes);
-app.use("/api/users/", userRoutes);
+    const createdUsers = await User.insertMany(users);
 
-//make uploads folder static
-const __dirname = path.resolve();
-app.use("/uploads", express.static(path.join(__dirname, "uploads")))
+    const adminUser: UserDocument = createdUsers[0]._id;
 
-//Use Middleware
-app.use(notFound);
-app.use(errorHandler);
+    // Create sample products set w/ Admin user
+    const sampleProducts = products.map((p) => {
+      return { ...p};
+      // TODO: Add reviews to products
+    });
 
+    await Product.insertMany(sampleProducts);
 
-app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
-});
+    console.log("Data Imported!");
+    process.exit();
+  } catch (error) {
+    console.error(`${error}`);
+    process.exit(1);
+  }
+};
+
+/**
+ * Destroy all data on the database
+ */
+const destroyData = async () => {
+  try {
+    // Clear any existing items from DB
+    // await Order.deleteMany();
+    // await Product.deleteMany();
+    // await User.deleteMany();
+
+    console.log("Data Destroyed!");
+
+    process.exit();
+  } catch (error) {
+    console.error(`${error}`);
+    process.exit(1);
+  }
+};
+
+// Check command line args to destroy or import data
+process.argv[2] === "-d" ? destroyData() : importData();
